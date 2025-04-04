@@ -4,6 +4,7 @@ ColorizerAJM.py
 Taken from https://medium.com/@ryan_forrester_/adding-color-to-python-terminal-output-a-complete-guide-147fcb1c335f uses ANSI escape codes to colorize terminal output
 
 """
+import random
 
 from _version import __version__
 
@@ -19,6 +20,8 @@ class Colorizer:
         'WHITE': '\033[97m',
     }
     RESET_COLOR = '\033[0m'
+    CUSTOM_COLOR_PREFIX = '\033[38;5;'
+    ALL_VALID_CODES_RANGE = range(0, 256)
 
     def __init__(self, custom_colors: dict = None):
         """
@@ -27,7 +30,7 @@ class Colorizer:
         :param custom_colors: A dictionary containing custom colors for the software.
         :type custom_colors: dict
         """
-        self.custom_colors = custom_colors or {}
+        self.custom_colors = {x[0].upper(): x[1] for x in custom_colors.items()} or {}
 
     @property
     def all_available_colors(self):
@@ -63,6 +66,9 @@ class Colorizer:
 
 
 if __name__ == "__main__":
-    c = Colorizer()
-    print(c.all_available_colors)
-    c.example_usage()
+    c = Colorizer(custom_colors={'light_pink': '\033[38;5;210m',
+                                 'random_color': f'\033[38;5;{random.randint(Colorizer.ALL_VALID_CODES_RANGE[0], 
+                                                                             Colorizer.ALL_VALID_CODES_RANGE[-1])}m'})
+    #print(c.all_available_colors)
+    c.pretty_print_all_available_colors()
+    #c.example_usage()
