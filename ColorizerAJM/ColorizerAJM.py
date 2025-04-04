@@ -49,11 +49,17 @@ class Colorizer:
     def make_bold(color_code):
         return color_code.replace('[', '[1;')
 
+    def pretty_print_all_available_colors(self):
+        print('All Available Colors: ')
+        for color in self.all_available_colors:
+            print(self.colorize(color, color))
+
     def example_usage(self):
         # Usage examples
         print(self.colorize("Warning: Low disk space", "yellow"))
         print(self.colorize("Error: Connection failed", "red"))
         print(self.colorize("Success: Test passed", "green"))
+        self.pretty_print_all_available_colors()
 
 
 if __name__ == "__main__":
