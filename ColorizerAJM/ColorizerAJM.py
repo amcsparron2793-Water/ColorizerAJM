@@ -9,10 +9,19 @@ uses ANSI escape codes to colorize terminal output
 import random
 from typing import Union
 
-from _version import __version__
+
+class InvalidColorCodeError(Exception):
+    """Raised when an invalid color code is encountered."""
+    ...
 
 
-class InvalidColorCode(Exception):
+class MissingColorDefinitionError(Exception):
+    """Raised when neither rgb nor hex is provided."""
+    ...
+
+
+class InvalidColorInputError(Exception):
+    """Raised when invalid rgb or hex input is given."""
     ...
 
 
@@ -168,23 +177,23 @@ class Colorizer:
             - For an integer within the valid range (0-255), returns the ANSI escape code for the color.
             - For a tuple of 3 integers (each in the range 0-255), returns the RGB ANSI escape code.
             Raises:
-                InvalidColorCode: If the input is not a valid color ID. """
+                InvalidColorCodeError: If the input is not a valid color ID. """
         if isinstance(color_id, int):
             if color_id in Colorizer.ALL_VALID_CODES_RANGE:
                 return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
             else:
-                raise InvalidColorCode("color_id must be an integer between 0 and 255")
+                raise InvalidColorCodeError("color_id must be an integer between 0 and 255")
         elif isinstance(color_id, tuple):
             if len(color_id) == 3 and all(c in Colorizer.ALL_VALID_CODES_RANGE for c in color_id):
                 return f'{Colorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}m'
-            raise InvalidColorCode("color_id must be an integer OR a tuple of three integers between 0 and 255")
+            raise InvalidColorCodeError("color_id must be an integer OR a tuple of three integers between 0 and 255")
 
     def _parse_color_string(self, color_string: str):
         """
         Parses a color string and returns the corresponding color code.
         If the color string is not found in the default color codes dictionary or the custom colors dictionary,
         it returns an empty string.
-        If the 'ignore_invalid_colors' flag is not set, it raises an InvalidColorCode exception.
+        If the 'ignore_invalid_colors' flag is not set, it raises an InvalidColorCodeError exception.
         """
         full_str = Colorizer.DEFAULT_COLOR_CODES.get(color_string.upper(),
                                                      self.custom_colors.get(color_string.upper(), ''))
@@ -192,7 +201,7 @@ class Colorizer:
             return full_str
         else:
             if not self.ignore_invalid_colors:
-                raise InvalidColorCode('given color did not match any of the available colors')
+                raise InvalidColorCodeError('given color did not match any of the available colors')
             return full_str
 
     def get_color_code(self, color: Union[str, dict, int, tuple[int, int, int]]) -> str:
@@ -250,11 +259,26 @@ class Colorizer:
 
 
 class ColorConverter:
+    """
+    Allows converting between RGB and hexadecimal color representations.
+
+    The constructor __init__ initializes the ColorConverter with either an RGB color tuple (rgb_color)
+     or a hexadecimal color string (hex_color).
+     It validates the input and ensures that only one of the color representations is provided.
+
+    The method rgb_to_hex converts an RGB color tuple to a hexadecimal color representation.
+    It takes a tuple of three integers between 0 and 255 representing the RGB components
+    and returns a string in the format "#RRGGBB".
+
+    The method hex_to_rgb converts a hexadecimal color representation to an RGB color tuple.
+    It takes a string in the format "#RRGGBB" representing the color and returns a tuple
+     of three integers between 0 and 255 representing the RGB components.
+    """
     def __init__(self, rgb_color=None, hex_color=None):
         self.rgb_color = rgb_color
         self.hex_color = hex_color
         if not self.rgb_color and not self.hex_color:
-            raise AttributeError('either rgb or hex must be provided')
+            raise MissingColorDefinitionError('either rgb or hex must be provided')
 
         if self.rgb_color and self.hex_color:
             raise AttributeError('only one of rgb or hex can be provided')
@@ -266,12 +290,12 @@ class ColorConverter:
                     or len(self.rgb_color) != 3
                     or any(not isinstance(c, int) or not (0 <= c <= 255) for c in self.rgb_color)
             ):
-                raise ValueError('RGB must be a tuple of three integers between 0 and 255')
+                raise InvalidColorInputError('RGB must be a tuple of three integers between 0 and 255')
 
         # Validate HEX input
         if self.hex_color:
             if not isinstance(self.hex_color, str) or not self.hex_color.startswith('#') or len(self.hex_color) != 7:
-                raise ValueError('Hex must be a string in the format "#RRGGBB"')
+                raise InvalidColorInputError('Hex must be a string in the format "#RRGGBB"')
     
     def rgb_to_hex(self):
         """
@@ -284,21 +308,18 @@ class ColorConverter:
             str: Hexadecimal color representation.
         """
         if not self.rgb_color:
-            raise ValueError('RGB tuple is not provided')
+            raise InvalidColorInputError('RGB tuple is not provided')
         return '#{0:02x}{1:02x}{2:02x}'.format(*self.rgb_color)
 
     def hex_to_rgb(self):
         """
         Convert hexadecimal color representation to RGB tuple.
 
-        Args:
-            hex_color (str): Hexadecimal color representation (e.g., '#RRGGBB').
-
         Returns:
             tuple: RGB color tuple in the format (R, G, B) where each component is an integer between 0 and 255.
         """
         if not self.hex_color:
-            raise ValueError('Hexadecimal color representation is not provided')
+            raise InvalidColorInputError('Hexadecimal color representation is not provided')
         hex_color = self.hex_color.lstrip('#')
         return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
