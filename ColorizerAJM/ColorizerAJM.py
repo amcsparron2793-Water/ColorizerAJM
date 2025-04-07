@@ -17,15 +17,7 @@ class InvalidColorCode(Exception):
 
 
 class Colorizer:
-    """
-    Class for coloring text in the terminal with ANSI escape codes.
-
-    Attributes:
-        RED: Constant for red color.
-        GREEN: Constant for green color.
-        BLUE: Constant for blue color.
-        YELLOW: Constant for yellow color.
-        MAGENTA: Constant for magenta color"""
+    """ Class for coloring text in the terminal with ANSI escape codes. """
     RED = 'RED'
     GREEN = 'GREEN'
     BLUE = 'BLUE'
@@ -56,7 +48,16 @@ class Colorizer:
     @property
     def custom_colors(self):
         """
-        Retrieve and format custom colors based on predefined rules. If custom colors have not been populated yet, iterate over the internal dictionary of custom colors. If the value of a custom color is an integer, convert it to the corresponding color code. If the value is a string starting with '\033', leave it as is. Update the temporary dictionary with the formatted color data. Finally, set the internal custom colors to the processed dictionary and mark custom colors as populated. Return the custom colors dictionary.
+        Retrieve and format custom colors based on predefined rules.
+        If custom colors have not been populated yet,
+        iterate over the internal dictionary of custom colors.
+        If the value of a custom color is an integer,
+        convert it to the corresponding color code.
+        If the value is a string starting with '\033', leave it as is.
+        Update the temporary dictionary with the formatted color data.
+        Finally, set the internal custom colors to the processed dictionary
+        and mark custom colors as populated.
+        Return the custom colors dictionary.
         """
         if not self._custom_colors_populated:
             temp_dict = {}
