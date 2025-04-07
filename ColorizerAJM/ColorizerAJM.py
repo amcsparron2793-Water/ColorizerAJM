@@ -48,6 +48,7 @@ class Colorizer:
     RESET_COLOR_CODE = '\033[0m'
     CUSTOM_COLOR_PREFIX = '\033[38;5;'
     RGBA_COLOR_PREFIX = '\033[38;2;'
+    COLOR_SUFFIX = 'm'
     ALL_VALID_CODES_RANGE = range(0, 256)
 
     def __init__(self, custom_colors: dict = None, **kwargs):
@@ -99,7 +100,7 @@ class Colorizer:
         """
         return (f'{Colorizer.CUSTOM_COLOR_PREFIX}'
                 f'{random.randint(Colorizer.ALL_VALID_CODES_RANGE[0],
-                                  Colorizer.ALL_VALID_CODES_RANGE[-1])}m')
+                                  Colorizer.ALL_VALID_CODES_RANGE[-1])}{Colorizer.COLOR_SUFFIX}')
 
     def colorize(self, text, color=None, bold=False):
         """
@@ -180,12 +181,12 @@ class Colorizer:
                 InvalidColorCodeError: If the input is not a valid color ID. """
         if isinstance(color_id, int):
             if color_id in Colorizer.ALL_VALID_CODES_RANGE:
-                return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
+                return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}{Colorizer.COLOR_SUFFIX}'
             else:
                 raise InvalidColorCodeError("color_id must be an integer between 0 and 255")
         elif isinstance(color_id, tuple):
             if len(color_id) == 3 and all(c in Colorizer.ALL_VALID_CODES_RANGE for c in color_id):
-                return f'{Colorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}m'
+                return f'{Colorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}{Colorizer.COLOR_SUFFIX}'
             raise InvalidColorCodeError("color_id must be an integer OR a tuple of three integers between 0 and 255")
 
     def _parse_color_string(self, color_string: str):
