@@ -248,8 +248,32 @@ class Colorizer:
         self.print_color("Success: Test passed", color="green")
         self.pretty_print_all_available_colors()
 
-    @staticmethod
-    def rgb_to_hex(rgb):
+
+class ColorConverter:
+    def __init__(self, rgb_color=None, hex_color=None):
+        self.rgb_color = rgb_color
+        self.hex_color = hex_color
+        if not self.rgb_color and not self.hex_color:
+            raise AttributeError('either rgb or hex must be provided')
+
+        if self.rgb_color and self.hex_color:
+            raise AttributeError('only one of rgb or hex can be provided')
+
+        # Validate RGB input
+        if self.rgb_color:
+            if (
+                    not isinstance(self.rgb_color, tuple)
+                    or len(self.rgb_color) != 3
+                    or any(not isinstance(c, int) or not (0 <= c <= 255) for c in self.rgb_color)
+            ):
+                raise ValueError('RGB must be a tuple of three integers between 0 and 255')
+
+        # Validate HEX input
+        if self.hex_color:
+            if not isinstance(self.hex_color, str) or not self.hex_color.startswith('#') or len(self.hex_color) != 7:
+                raise ValueError('Hex must be a string in the format "#RRGGBB"')
+    
+    def rgb_to_hex(self):
         """
         Convert RGB tuple to hexadecimal color representation.
 
@@ -259,10 +283,11 @@ class Colorizer:
         Returns:
             str: Hexadecimal color representation.
         """
-        return '#{0:02x}{1:02x}{2:02x}'.format(*rgb)
+        if not self.rgb_color:
+            raise ValueError('RGB tuple is not provided')
+        return '#{0:02x}{1:02x}{2:02x}'.format(*self.rgb_color)
 
-    @staticmethod
-    def hex_to_rgb(hex_color):
+    def hex_to_rgb(self):
         """
         Convert hexadecimal color representation to RGB tuple.
 
@@ -272,7 +297,9 @@ class Colorizer:
         Returns:
             tuple: RGB color tuple in the format (R, G, B) where each component is an integer between 0 and 255.
         """
-        hex_color = hex_color.lstrip('#')
+        if not self.hex_color:
+            raise ValueError('Hexadecimal color representation is not provided')
+        hex_color = self.hex_color.lstrip('#')
         return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
 
