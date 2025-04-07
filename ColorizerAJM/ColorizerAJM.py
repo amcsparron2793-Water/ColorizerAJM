@@ -38,6 +38,7 @@ class Colorizer:
 
     RESET_COLOR_CODE = '\033[0m'
     CUSTOM_COLOR_PREFIX = '\033[38;5;'
+    RGBA_COLOR_PREFIX = '\033[38;2;'
     ALL_VALID_CODES_RANGE = range(0, 256)
 
     def __init__(self, custom_colors: dict = None, **kwargs):
@@ -64,6 +65,8 @@ class Colorizer:
             for x in self._custom_colors.items():
                 if isinstance(x[1], int):
                     x = {x[0].upper(): self.get_color_code({x[0]: x[1]})}
+                elif isinstance(x[1], tuple) and len(x[1]) == 3:
+                    x = {x[0].upper(): self.get_color_code(x[1])}
                 elif isinstance(x[1], str) and x[1].startswith('\033'):
                     x = {x[0].upper(): x[1]}
                 temp_dict.update(x)
@@ -160,18 +163,21 @@ class Colorizer:
                 print()
 
     @staticmethod
-    def stringify_color_id(color_id: int):
-        """
-        This method converts a color ID to a string format for colorization.
-         The color ID should be an integer value within the valid range specified by the Colorizer class.
-         If the provided color ID is within the valid range, the method returns a string representation of the color ID.
-          If the color ID is outside the valid range, an InvalidColorCode exception
-          is raised indicating that the color ID must be an integer between 0 and 255.
-        """
-        if color_id in Colorizer.ALL_VALID_CODES_RANGE:
-            return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
-        else:
-            raise InvalidColorCode("color_id must be an integer between 0 and 255")
+    def stringify_color_id(color_id: Union[int, tuple]):
+        """ Converts a color ID (integer or RGB tuple) into a string format for colorization.
+            - For an integer within the valid range (0-255), returns the ANSI escape code for the color.
+            - For a tuple of 3 integers (each in the range 0-255), returns the RGB ANSI escape code.
+            Raises:
+                InvalidColorCode: If the input is not a valid color ID. """
+        if isinstance(color_id, int):
+            if color_id in Colorizer.ALL_VALID_CODES_RANGE:
+                return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
+            else:
+                raise InvalidColorCode("color_id must be an integer between 0 and 255")
+        elif isinstance(color_id, tuple):
+            if len(color_id) == 3 and all(c in Colorizer.ALL_VALID_CODES_RANGE for c in color_id):
+                return f'{Colorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}m'
+            raise InvalidColorCode("color_id must be an integer OR a tuple of three integers between 0 and 255")
 
     def _parse_color_string(self, color_string: str):
         """
@@ -189,7 +195,7 @@ class Colorizer:
                 raise InvalidColorCode('given color did not match any of the available colors')
             return full_str
 
-    def get_color_code(self, color: Union[str, dict, int]) -> str:
+    def get_color_code(self, color: Union[str, dict, int, tuple[int, int, int]]) -> str:
         """
         A method to retrieve color code based on the input provided.
         The input can be a string, dictionary, or integer representing the color.
@@ -204,11 +210,12 @@ class Colorizer:
         elif isinstance(color, int):
             color_id = color
             return self.get_color_code(self.stringify_color_id(color_id))
-
+        elif isinstance(color, tuple):
+            return self.stringify_color_id(color)
         elif isinstance(color, str):
             return self._parse_color_string(color)
         else:
-            raise AttributeError("color attribute must be a string or a dictionary")
+            raise AttributeError(f"color attribute must be a string or a dictionary, not {type(color).__name__}")
 
     @staticmethod
     def make_bold(color_code):
@@ -272,7 +279,8 @@ class Colorizer:
 if __name__ == "__main__":
     test_custom_colors = {
         'dark_blue': Colorizer.CUSTOM_COLOR_PREFIX + '25m',
-        'light_pink': 210
+        'orange': (255, 150, 0),
+        'pink': 211
     }
     c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
     c.example_usage()
