@@ -145,7 +145,7 @@ class Colorizer:
 
         print(self.colorize(text, color, bold), **extra_print_args)
 
-    def preview_color_id(self, color_id: int):
+    def preview_color_id(self, color_id: Union[int, tuple[int, int, int]]):
         """
         Method to preview a specific color ID by printing it using the provided color ID.
 
@@ -233,7 +233,7 @@ class Colorizer:
         """
         return color_code.replace('[', '[1;')
 
-    def pretty_print_all_available_colors(self):
+    def pretty_print_all_loaded_colors(self):
         """
         Method to print all available colors in a visually appealing way.
 
@@ -255,7 +255,10 @@ class Colorizer:
         self.print_color("Warning: Low disk space", color="yellow")
         self.print_color("Error: Connection failed", color="red")
         self.print_color("Success: Test passed", color="green")
-        self.pretty_print_all_available_colors()
+        print()
+        self.pretty_print_all_loaded_colors()
+        print()
+        self.print_color_table()
 
 
 class ColorConverter:
@@ -332,4 +335,3 @@ if __name__ == "__main__":
     }
     c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
     c.example_usage()
-    #c.preview_color_id(25)
