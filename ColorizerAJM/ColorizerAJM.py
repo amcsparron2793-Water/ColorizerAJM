@@ -7,9 +7,13 @@ uses ANSI escape codes to colorize terminal output
 
 """
 import random
-from typing import Optional, Union
+from typing import Union
 
 from _version import __version__
+
+
+class InvalidColorCode(Exception):
+    ...
 
 
 class Colorizer:
@@ -35,13 +39,14 @@ class Colorizer:
     CUSTOM_COLOR_PREFIX = '\033[38;5;'
     ALL_VALID_CODES_RANGE = range(0, 256)
 
-    def __init__(self, custom_colors: dict = None):
+    def __init__(self, custom_colors: dict = None, **kwargs):
         """
         Uses ANSI escape codes to colorize terminal output
 
         :param custom_colors: A dictionary containing custom colors for the software.
         :type custom_colors: dict
         """
+        self.ignore_invalid_colors = kwargs.get('ignore_invalid_colors', False)
 
         self._custom_colors = custom_colors or {}
 
@@ -80,14 +85,37 @@ class Colorizer:
             color_code = self.make_bold(color_code)
         return f"{color_code}{text}{Colorizer.RESET_COLOR_CODE}"
 
+    def print_color(self, text, **kwargs):
+        color = kwargs.get('color', None)
+        bold = kwargs.get('bold', False)
+        print(self.colorize(text, color, bold))
+
+    @staticmethod
+    def stringify_color_id(color_id: int):
+        """builds the full custom color ANSI escape code from the color_id"""
+        if color_id in Colorizer.ALL_VALID_CODES_RANGE:
+            return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
+        else:
+            raise InvalidColorCode("color_id must be an integer between 0 and 255")
+
     def get_color_code(self, color: Union[str, dict]) -> str:
         """Retrieve color code from default or custom colors."""
         if isinstance(color, dict):
             color, color_id = [x for x in color.items()][0] if color else [None, None]
-            if color_id in Colorizer.ALL_VALID_CODES_RANGE:
-                return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}m'
+            return self.stringify_color_id(color_id)
+        elif isinstance(color, int):
+            color_id = color
+            return self.get_color_code(self.stringify_color_id(color_id))
+
         elif isinstance(color, str):
-            return Colorizer.DEFAULT_COLOR_CODES.get(color.upper(), self.custom_colors.get(color.upper(), ''))
+            full_str = Colorizer.DEFAULT_COLOR_CODES.get(color.upper(),
+                                                         self.custom_colors.get(color.upper(), ''))
+            if full_str != '':
+                return full_str
+            else:
+                if not self.ignore_invalid_colors:
+                    raise InvalidColorCode('given color did not match any of the available colors')
+                return full_str
         else:
             raise AttributeError("color attribute must be a string or a dictionary")
 
@@ -102,9 +130,9 @@ class Colorizer:
 
     def example_usage(self):
         # Usage examples
-        print(self.colorize("Warning: Low disk space", "yellow"))
-        print(self.colorize("Error: Connection failed", "red"))
-        print(self.colorize("Success: Test passed", "green"))
+        self.print_color("Warning: Low disk space", color="yellow")
+        self.print_color("Error: Connection failed", color="red")
+        self.print_color("Success: Test passed", color="green")
         self.pretty_print_all_available_colors()
 
 
@@ -113,5 +141,5 @@ if __name__ == "__main__":
         'light_blue': Colorizer.CUSTOM_COLOR_PREFIX + '25m',
         'light_pink': 210
     }
-    c = Colorizer(custom_colors=test_custom_colors)
-    c.pretty_print_all_available_colors()
+    c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
+    c.example_usage()
