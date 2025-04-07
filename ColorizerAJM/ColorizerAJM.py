@@ -24,7 +24,7 @@ class InvalidColorInputError(Exception):
     """Raised when invalid rgb or hex input is given."""
     ...
 
-
+# TODO: add in background color functionality
 class Colorizer:
     """ Class for coloring text in the terminal with ANSI escape codes. """
     RED = 'RED'
