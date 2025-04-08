@@ -24,6 +24,7 @@ class InvalidColorInputError(Exception):
     """Raised when invalid rgb or hex input is given."""
     ...
 
+
 # TODO: add in background color functionality
 class Colorizer:
     """ Class for coloring text in the terminal with ANSI escape codes. """
@@ -35,7 +36,7 @@ class Colorizer:
     CYAN = 'CYAN'
     WHITE = 'WHITE'
 
-    DEFAULT_COLOR_CODES = {
+    DEFAULT_TEXT_COLOR_CODES = {
         RED: '\033[91m',
         GREEN: '\033[92m',
         BLUE: '\033[94m',
@@ -46,8 +47,11 @@ class Colorizer:
     }
 
     RESET_COLOR_CODE = '\033[0m'
-    CUSTOM_COLOR_PREFIX = '\033[38;5;'
-    RGBA_COLOR_PREFIX = '\033[38;2;'
+
+    CUSTOM_TEXT_COLOR_PREFIX = '\033[38;5;'
+    CUSTOM_BACKGROUND_COLOR_PREFIX = '\033[48;5;'
+    RGBA_TEXT_COLOR_PREFIX = '\033[38;2;'
+
     COLOR_SUFFIX = 'm'
     ALL_VALID_CODES_RANGE = range(0, 256)
 
@@ -90,7 +94,7 @@ class Colorizer:
         """
         @return a list of all loaded colors including default color codes and custom colors
         """
-        return list(Colorizer.DEFAULT_COLOR_CODES.keys()) + list(self.custom_colors.keys())
+        return list(Colorizer.DEFAULT_TEXT_COLOR_CODES.keys()) + list(self.custom_colors.keys())
 
     @staticmethod
     def random_color():
@@ -98,7 +102,7 @@ class Colorizer:
         Generates a random color code using ANSI escape sequence for text color manipulation.
         Returns the random color code as a string.
         """
-        return (f'{Colorizer.CUSTOM_COLOR_PREFIX}'
+        return (f'{Colorizer.CUSTOM_TEXT_COLOR_PREFIX}'
                 f'{random.randint(Colorizer.ALL_VALID_CODES_RANGE[0],
                                   Colorizer.ALL_VALID_CODES_RANGE[-1])}{Colorizer.COLOR_SUFFIX}')
 
@@ -181,12 +185,12 @@ class Colorizer:
                 InvalidColorCodeError: If the input is not a valid color ID. """
         if isinstance(color_id, int):
             if color_id in Colorizer.ALL_VALID_CODES_RANGE:
-                return f'{Colorizer.CUSTOM_COLOR_PREFIX}{color_id}{Colorizer.COLOR_SUFFIX}'
+                return f'{Colorizer.CUSTOM_TEXT_COLOR_PREFIX}{color_id}{Colorizer.COLOR_SUFFIX}'
             else:
                 raise InvalidColorCodeError("color_id must be an integer between 0 and 255")
         elif isinstance(color_id, tuple):
             if len(color_id) == 3 and all(c in Colorizer.ALL_VALID_CODES_RANGE for c in color_id):
-                return f'{Colorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}{Colorizer.COLOR_SUFFIX}'
+                return f'{Colorizer.RGBA_TEXT_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}{Colorizer.COLOR_SUFFIX}'
             raise InvalidColorCodeError("color_id must be an integer OR a tuple of three integers between 0 and 255")
 
     def _parse_color_string(self, color_string: str):
@@ -196,8 +200,8 @@ class Colorizer:
         it returns an empty string.
         If the 'ignore_invalid_colors' flag is not set, it raises an InvalidColorCodeError exception.
         """
-        full_str = Colorizer.DEFAULT_COLOR_CODES.get(color_string.upper(),
-                                                     self.custom_colors.get(color_string.upper(), ''))
+        full_str = Colorizer.DEFAULT_TEXT_COLOR_CODES.get(color_string.upper(),
+                                                          self.custom_colors.get(color_string.upper(), ''))
         if full_str != '':
             return full_str
         else:
@@ -330,9 +334,10 @@ class ColorConverter:
 
 if __name__ == "__main__":
     test_custom_colors = {
-        'dark_blue': Colorizer.CUSTOM_COLOR_PREFIX + '25m',
+        'dark_blue': Colorizer.CUSTOM_TEXT_COLOR_PREFIX + '25m',
         'orange': (255, 150, 0),
         'pink': 211
     }
     c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
-    c.example_usage()
+    # c.example_usage()
+    print(f'{Colorizer.CUSTOM_BACKGROUND_COLOR_PREFIX}211{Colorizer.COLOR_SUFFIX}TEST{Colorizer.RESET_COLOR_CODE}')
