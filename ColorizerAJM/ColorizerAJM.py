@@ -340,4 +340,7 @@ if __name__ == "__main__":
     }
     c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
     # c.example_usage()
-    print(f'{Colorizer.CUSTOM_BACKGROUND_COLOR_PREFIX}211{Colorizer.COLOR_SUFFIX}TEST{Colorizer.RESET_COLOR_CODE}')
+    print(f'{Colorizer.CUSTOM_BACKGROUND_COLOR_PREFIX}211{Colorizer.COLOR_SUFFIX}'
+          f'{Colorizer.CUSTOM_TEXT_COLOR_PREFIX}0{Colorizer.COLOR_SUFFIX}'
+          f'TEST'
+          f'{Colorizer.RESET_COLOR_CODE}')
