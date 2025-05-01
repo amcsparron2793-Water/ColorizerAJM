@@ -7,7 +7,7 @@ uses ANSI escape codes to colorize terminal output
 
 """
 import random
-from typing import Union
+from typing import Union, Tuple
 
 
 class InvalidColorCodeError(Exception):
@@ -23,6 +23,7 @@ class MissingColorDefinitionError(Exception):
 class InvalidColorInputError(Exception):
     """Raised when invalid rgb or hex input is given."""
     ...
+
 
 # TODO: add in background color functionality
 class Colorizer:
@@ -99,8 +100,8 @@ class Colorizer:
         Returns the random color code as a string.
         """
         return (f'{Colorizer.CUSTOM_COLOR_PREFIX}'
-                f'{random.randint(Colorizer.ALL_VALID_CODES_RANGE[0],
-                                  Colorizer.ALL_VALID_CODES_RANGE[-1])}{Colorizer.COLOR_SUFFIX}')
+                f'{random.randint(Colorizer.ALL_VALID_CODES_RANGE[0], Colorizer.ALL_VALID_CODES_RANGE[-1])}'
+                f'{Colorizer.COLOR_SUFFIX}')
 
     def colorize(self, text, color=None, bold=False):
         """
@@ -146,7 +147,7 @@ class Colorizer:
 
         print(self.colorize(text, color, bold), **extra_print_args)
 
-    def preview_color_id(self, color_id: Union[int, tuple[int, int, int]]):
+    def preview_color_id(self, color_id: Union[int, Tuple[int, int, int]]):
         """
         Method to preview a specific color ID by printing it using the provided color ID.
 
@@ -205,7 +206,7 @@ class Colorizer:
                 raise InvalidColorCodeError('given color did not match any of the available colors')
             return full_str
 
-    def get_color_code(self, color: Union[str, dict, int, tuple[int, int, int]]) -> str:
+    def get_color_code(self, color: Union[str, dict, int, Tuple[int, int, int]]) -> str:
         """
         A method to retrieve color code based on the input provided.
         The input can be a string, dictionary, or integer representing the color.
@@ -230,7 +231,8 @@ class Colorizer:
     @staticmethod
     def make_bold(color_code):
         """
-        Static method to make a given color code bold. Takes a color code string as input and returns the same code with the bold formatting applied.
+        Static method to make a given color code bold.
+        Takes a color code string as input and returns the same code with the bold formatting applied.
         """
         return color_code.replace('[', '[1;')
 
@@ -304,9 +306,6 @@ class ColorConverter:
     def rgb_to_hex(self):
         """
         Convert RGB tuple to hexadecimal color representation.
-
-        Args:
-            rgb (tuple): RGB color tuple in the format (R, G, B) where each component is an integer between 0 and 255.
 
         Returns:
             str: Hexadecimal color representation.
