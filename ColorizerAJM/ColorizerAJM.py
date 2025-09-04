@@ -35,6 +35,8 @@ class Colorizer:
     MAGENTA = 'MAGENTA'
     CYAN = 'CYAN'
     WHITE = 'WHITE'
+    GRAY = 'GRAY'
+    BLACK = 'BLACK'
 
     DEFAULT_COLOR_CODES = {
         RED: '\033[91m',
@@ -44,6 +46,8 @@ class Colorizer:
         MAGENTA: '\033[95m',
         CYAN: '\033[96m',
         WHITE: '\033[97m',
+        GRAY: '\x1b[90m',
+        BLACK: '\x1b[30m'
     }
 
     RESET_COLOR_CODE = '\033[0m'
