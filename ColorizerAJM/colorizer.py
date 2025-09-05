@@ -1,5 +1,5 @@
 """
-ColorizerAJM.py
+colorizer.py
 
 adapted from https://medium.com/@ryan_forrester_/adding-color-to-python-terminal-output-a-complete-guide-147fcb1c335f
 
@@ -8,21 +8,7 @@ uses ANSI escape codes to colorize terminal output
 """
 import random
 from typing import Union, Tuple
-
-
-class InvalidColorCodeError(Exception):
-    """Raised when an invalid color code is encountered."""
-    ...
-
-
-class MissingColorDefinitionError(Exception):
-    """Raised when neither rgb nor hex is provided."""
-    ...
-
-
-class InvalidColorInputError(Exception):
-    """Raised when invalid rgb or hex input is given."""
-    ...
+from .errs import InvalidColorCodeError, MissingColorDefinitionError, InvalidColorInputError
 
 
 # TODO: add in background color functionality
