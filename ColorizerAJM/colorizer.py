@@ -12,6 +12,7 @@ from .errs import InvalidColorCodeError, MissingColorDefinitionError, InvalidCol
 
 
 # TODO: add in background color functionality
+# TODO: add in read custom_colors_from_file functionality
 class Colorizer:
     """ Class for coloring text in the terminal with ANSI escape codes. """
     RED = 'RED'
