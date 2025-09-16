@@ -22,6 +22,7 @@ class Colorizer:
     CYAN = 'CYAN'
     WHITE = 'WHITE'
     GRAY = 'GRAY'
+    LIGHT_GRAY = 'LIGHT_GRAY'
     BLACK = 'BLACK'
 
     DEFAULT_COLOR_CODES = {
@@ -33,6 +34,7 @@ class Colorizer:
         CYAN: '\033[96m',
         WHITE: '\033[97m',
         GRAY: '\x1b[90m',
+        LIGHT_GRAY: '\x1b[37m',
         BLACK: '\x1b[30m'
     }
 
