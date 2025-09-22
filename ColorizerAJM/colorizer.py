@@ -8,7 +8,7 @@ uses ANSI escape codes to colorize terminal output
 """
 import random
 from abc import abstractmethod
-from json import load
+from json import load, dumps, dump
 from pathlib import Path
 from typing import Union, Tuple
 from ColorizerAJM.errs import InvalidColorCodeError, MissingColorDefinitionError, InvalidColorInputError
@@ -118,6 +118,8 @@ class CustomColorColorizer(_ColorizerInitializer):
         self.custom_colors = custom_colors or {}
         self.custom_color_file_path = kwargs.get('custom_color_file_path',
                                                  self.__class__.DEFAULT_CUSTOM_COLOR_FILE_PATH)
+        if kwargs.get('write_custom_colors_on_init', True):
+            self.write_custom_colors()
 
     @property
     def custom_colors(self):
@@ -150,10 +152,17 @@ class CustomColorColorizer(_ColorizerInitializer):
             temp_dict.update(x)
         self._custom_colors = temp_dict
 
+    def write_custom_colors(self):
+        if self.custom_colors:
+            with open(self.custom_color_file_path, 'w') as f:
+                dump(self.custom_colors, fp=f, indent=4)
+
     def read_custom_colors(self):
         if self.custom_color_file_path.is_file() and self.custom_color_file_path.suffix == '.json':
             with open(self.custom_color_file_path, 'r') as f:
                 self.custom_colors = load(f)
+                print(f"custom colors loaded from {f.name}")
+                # TODO: log here
         else:
             raise AttributeError(f"custom color file path is not a valid file or does not have a .json extension")
 
