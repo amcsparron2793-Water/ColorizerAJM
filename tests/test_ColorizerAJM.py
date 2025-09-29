@@ -1,4 +1,3 @@
-import random
 import unittest
 
 from ColorizerAJM import Colorizer
@@ -8,6 +7,11 @@ class TestColorizer(unittest.TestCase):
 
     def setUp(self):
         self.colorizer = Colorizer()
+
+    @classmethod
+    def tearDownClass(cls):
+        if Colorizer.DEFAULT_CUSTOM_COLOR_FILE_PATH.is_file():
+            Colorizer.DEFAULT_CUSTOM_COLOR_FILE_PATH.unlink()
 
     def test_colorize(self):
         colored_text = self.colorizer.colorize('Hello World', 'RED')
