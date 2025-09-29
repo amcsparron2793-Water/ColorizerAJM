@@ -1,10 +1,10 @@
 from json import dump, load
 from pathlib import Path
 
-from ColorizerAJM import _ColorizerInitializer
+from . import _BaseColorizer
 
 
-class CustomColorColorizer(_ColorizerInitializer):
+class CustomColorColorizer(_BaseColorizer):
     DEFAULT_CUSTOM_COLOR_FILE_PATH = Path('./custom_colors.json')
 
     def __init__(self, custom_colors: dict = None, **kwargs):

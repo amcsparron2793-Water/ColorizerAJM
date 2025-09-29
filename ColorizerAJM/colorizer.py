@@ -14,7 +14,7 @@ from ColorizerAJM.errs import MissingColorDefinitionError, InvalidColorInputErro
 
 
 # TODO: add in background color functionality
-# TODO: add in read custom_colors_from_file functionality
+# TODO: work on CustomColorColorizer/_init decupilization
 class Colorizer(CustomColorColorizer):
     """ Class for coloring text in the terminal with ANSI escape codes. """
 
@@ -210,10 +210,11 @@ class ColorConverter:
 
 
 if __name__ == "__main__":
-    test_custom_colors = {
-        'dark_blue': Colorizer.CUSTOM_COLOR_PREFIX + '25m',
-        'orange': (255, 150, 0),
-        'pink': 211
-    }
+    # test_custom_colors = {
+    #     'dark_blue': Colorizer.CUSTOM_COLOR_PREFIX + '25m',
+    #     'orange': (255, 150, 0),
+    #     'pink': 211
+    # }
+    test_custom_colors = {}
     c = Colorizer(custom_colors=test_custom_colors, ignore_invalid_colors=False)
     c.example_usage()
