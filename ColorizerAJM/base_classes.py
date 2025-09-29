@@ -4,6 +4,29 @@ from typing import Union, Tuple
 
 
 class _ColorizerBasicAttrs:
+    """
+    Represents a collection of basic attributes and constants for defining and handling color codes.
+
+    Attributes:
+    RED: String representing the color name 'RED'.
+    GREEN: String representing the color name 'GREEN'.
+    BLUE: String representing the color name 'BLUE'.
+    YELLOW: String representing the color name 'YELLOW'.
+    MAGENTA: String representing the color name 'MAGENTA'.
+    CYAN: String representing the color name 'CYAN'.
+    WHITE: String representing the color name 'WHITE'.
+    GRAY: String representing the color name 'GRAY'.
+    LIGHT_GRAY: String representing the color name 'LIGHT_GRAY'.
+    BLACK: String representing the color name 'BLACK'.
+
+    DEFAULT_COLOR_CODES: Dictionary mapping basic color names to their respective ANSI escape color codes.
+
+    RESET_COLOR_CODE: String representing the reset code to clear any applied color formatting.
+    CUSTOM_COLOR_PREFIX: ANSI escape sequence prefix for custom indexed colors.
+    RGBA_COLOR_PREFIX: ANSI escape sequence prefix for RGBA-based color codes.
+    COLOR_SUFFIX: Suffix indicating the end of an ANSI color escape sequence.
+    ALL_VALID_CODES_RANGE: Range representing all valid custom color code values (0-255).
+    """
     RED = 'RED'
     GREEN = 'GREEN'
     BLUE = 'BLUE'
@@ -36,6 +59,51 @@ class _ColorizerBasicAttrs:
 
 
 class _BaseColorizer(_ColorizerBasicAttrs):
+    """
+    _BaseColorizer class is a base class for handling colorization logic, extending _ColorizerBasicAttrs. It includes methods for parsing, validating, and managing color codes and custom colors.
+
+    __init__(self, **kwargs)
+        Constructor for the _BaseColorizer class.
+        Parameters:
+            kwargs: Additional arguments to configure the instance.
+                - 'ignore_invalid_colors' (bool): Flag to ignore invalid color codes when True. Defaults to False.
+
+    @property custom_colors
+        Abstract property that must be implemented in subclasses.
+        Represents the dictionary containing custom color definitions.
+
+    @staticmethod stringify_color_id(color_id: Union[int, tuple])
+        Converts a color ID (an integer or RGB tuple) into a string format for color codes.
+        Parameters:
+            color_id: The input color ID, either an integer (0-255) or an RGB tuple of three integers (0-255 each).
+        Returns:
+            A formatted ANSI escape code string for the given color.
+        Raises:
+            InvalidColorCodeError: If color_id is not a valid integer or RGB tuple.
+
+    _parse_color_string(self, color_string: str)
+        Parses the input color string and retrieves the corresponding color code.
+        Parameters:
+            color_string: The color as a textual string.
+        Returns:
+            A string containing the ANSI escape code if the color is valid. If invalid and 'ignore_invalid_colors' is False, raises an exception.
+        Raises:
+            InvalidColorCodeError: If the input color string is invalid and 'ignore_invalid_colors' is not set.
+
+    get_color_code(self, color: Union[str, dict, int, Tuple[int, int, int]]) -> str
+        Retrieves the color code based on the provided input, which can be a string, dictionary, integer, or RGB tuple.
+        Parameters:
+            color: The input representing a color. It can be:
+                - str: A color string.
+                - dict: A dictionary containing a color name and its ID.
+                - int: An integer representing a color ID.
+                - tuple: An RGB tuple of three integers.
+        Returns:
+            A string containing the ANSI escape code for the provided color.
+        Raises:
+            InvalidColorCodeError: If the input color cannot be validated or processed.
+            AttributeError: If the input type is not supported (not str, dict, int, or tuple).
+    """
     def __init__(self, **kwargs):
         self.ignore_invalid_colors = kwargs.get('ignore_invalid_colors', False)
 
