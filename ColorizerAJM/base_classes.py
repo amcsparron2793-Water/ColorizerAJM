@@ -58,6 +58,23 @@ class _ColorizerBasicAttrs:
     ALL_VALID_CODES_RANGE = range(0, 256)
 
 
+class _ColorizerBackgroundBasicAttrs(_ColorizerBasicAttrs):
+    CUSTOM_COLOR_PREFIX = '\033[48;5;'
+    RGBA_COLOR_PREFIX = '\033[48;2;'
+    DEFAULT_COLOR_CODES = {
+        _ColorizerBasicAttrs.RED: '\033[41m',
+        _ColorizerBasicAttrs.GREEN: '\033[42m',
+        _ColorizerBasicAttrs.BLUE: '\033[44m',
+        _ColorizerBasicAttrs.YELLOW: '\033[43m',
+        _ColorizerBasicAttrs.MAGENTA: '\033[45m',
+        _ColorizerBasicAttrs.CYAN: '\033[46m',
+        _ColorizerBasicAttrs.WHITE: '\033[47m',
+        _ColorizerBasicAttrs.GRAY: '\x1b[40m',
+        _ColorizerBasicAttrs.LIGHT_GRAY: '\x1b[37m',
+        _ColorizerBasicAttrs.BLACK: '\x1b[40m'
+    }
+
+
 class _BaseColorizer(_ColorizerBasicAttrs):
     """
     _BaseColorizer class is a base class for handling colorization logic, extending _ColorizerBasicAttrs. It includes methods for parsing, validating, and managing color codes and custom colors.
@@ -166,3 +183,7 @@ class _BaseColorizer(_ColorizerBasicAttrs):
             return self._parse_color_string(color)
         else:
             raise AttributeError(f"color attribute must be a string or a dictionary, not {type(color).__name__}")
+
+
+class _BaseBackgroundColorizer(_ColorizerBackgroundBasicAttrs, _BaseColorizer):
+    ...
