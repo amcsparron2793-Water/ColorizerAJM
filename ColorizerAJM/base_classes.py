@@ -1,5 +1,5 @@
 from . import errs
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from typing import Union, Tuple
 
 
@@ -38,27 +38,30 @@ class _ColorizerBasicAttrs:
     LIGHT_GRAY = 'LIGHT_GRAY'
     BLACK = 'BLACK'
 
-    DEFAULT_COLOR_CODES = {
-        RED: '\033[91m',
-        GREEN: '\033[92m',
-        BLUE: '\033[94m',
-        YELLOW: '\033[93m',
-        MAGENTA: '\033[95m',
-        CYAN: '\033[96m',
-        WHITE: '\033[97m',
-        GRAY: '\x1b[90m',
-        LIGHT_GRAY: '\x1b[37m',
-        BLACK: '\x1b[30m'
+    ANSI_OCT_ESCAPE_PREFIX = '\033['
+    ANSI_HEX_ESCAPE_PREFIX = '\x1b['
+    COLOR_SUFFIX = 'm'
+
+    DEFAULT_COLOR_CODES: dict[str, str] = {
+        RED: f'{ANSI_OCT_ESCAPE_PREFIX}91{COLOR_SUFFIX}',
+        GREEN: f'{ANSI_OCT_ESCAPE_PREFIX}92{COLOR_SUFFIX}',
+        BLUE: f'{ANSI_OCT_ESCAPE_PREFIX}94{COLOR_SUFFIX}',
+        YELLOW: f'{ANSI_OCT_ESCAPE_PREFIX}93{COLOR_SUFFIX}',
+        MAGENTA: f'{ANSI_OCT_ESCAPE_PREFIX}95{COLOR_SUFFIX}',
+        CYAN: f'{ANSI_OCT_ESCAPE_PREFIX}96{COLOR_SUFFIX}',
+        WHITE: f'{ANSI_OCT_ESCAPE_PREFIX}97{COLOR_SUFFIX}',
+        GRAY: f'{ANSI_HEX_ESCAPE_PREFIX}90{COLOR_SUFFIX}',
+        LIGHT_GRAY: f'{ANSI_HEX_ESCAPE_PREFIX}37{COLOR_SUFFIX}',
+        BLACK: f'{ANSI_HEX_ESCAPE_PREFIX}30{COLOR_SUFFIX}'
     }
 
-    RESET_COLOR_CODE = '\033[0m'
-    CUSTOM_COLOR_PREFIX = '\033[38;5;'
-    RGBA_COLOR_PREFIX = '\033[38;2;'
-    COLOR_SUFFIX = 'm'
-    ALL_VALID_CODES_RANGE = range(0, 256)
+    RESET_COLOR_CODE = f'{ANSI_OCT_ESCAPE_PREFIX}0{COLOR_SUFFIX}'
+    CUSTOM_COLOR_PREFIX = f'{ANSI_OCT_ESCAPE_PREFIX}38;5;'
+    RGBA_COLOR_PREFIX = f'{ANSI_OCT_ESCAPE_PREFIX}38;2;'
+    ALL_VALID_CODES_RANGE: range = range(0, 256)
 
 
-class _BaseColorizer(_ColorizerBasicAttrs):
+class _BaseColorizer(_ColorizerBasicAttrs, metaclass=ABCMeta):
     """
     _BaseColorizer class is a base class for handling colorization logic, extending _ColorizerBasicAttrs. It includes methods for parsing, validating, and managing color codes and custom colors.
 
@@ -104,6 +107,7 @@ class _BaseColorizer(_ColorizerBasicAttrs):
             InvalidColorCodeError: If the input color cannot be validated or processed.
             AttributeError: If the input type is not supported (not str, dict, int, or tuple).
     """
+
     def __init__(self, **kwargs):
         self.ignore_invalid_colors = kwargs.get('ignore_invalid_colors', False)
 
@@ -128,22 +132,24 @@ class _BaseColorizer(_ColorizerBasicAttrs):
             if len(color_id) == 3 and all(c in _BaseColorizer.ALL_VALID_CODES_RANGE for c in color_id):
                 return f'{_BaseColorizer.RGBA_COLOR_PREFIX}{color_id[0]};{color_id[1]};{color_id[2]}{_BaseColorizer.COLOR_SUFFIX}'
             raise errs.InvalidColorCodeError()
+        raise ValueError(f"color_id must be an integer or a tuple of 3 integers, not {type(color_id).__name__}")
 
-    def _parse_color_string(self, color_string: str):
+    def _parse_color_string(self, color_string: str) -> str:
         """
         Parses a color string and returns the corresponding color code.
         If the color string is not found in the default color codes dictionary or the custom colors dictionary,
         it returns an empty string.
         If the 'ignore_invalid_colors' flag is not set, it raises an InvalidColorCodeError exception.
         """
-        full_str = _BaseColorizer.DEFAULT_COLOR_CODES.get(color_string.upper(),
-                                                          self.custom_colors.get(color_string.upper(), ''))
+        # noinspection PyTypeChecker
+        full_str: str = _BaseColorizer.DEFAULT_COLOR_CODES.get(color_string.upper(),
+                                                               self.custom_colors.get(color_string.upper(), ''))
         if full_str != '':
             return full_str
-        else:
-            if not self.ignore_invalid_colors:
-                raise errs.InvalidColorCodeError('given color did not match any of the available colors')
-            return full_str
+
+        if not self.ignore_invalid_colors:
+            raise errs.InvalidColorCodeError('given color did not match any of the available colors')
+        return full_str
 
     def get_color_code(self, color: Union[str, dict, int, Tuple[int, int, int]]) -> str:
         """
