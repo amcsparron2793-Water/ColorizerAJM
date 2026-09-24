@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from . import errs
 from abc import abstractmethod, ABCMeta
 from typing import Union, Tuple
@@ -137,6 +139,8 @@ class _BaseColorizer(_ColorizerBasicAttrs, metaclass=ABCMeta):
 
     def __init__(self, **kwargs):
         self.ignore_invalid_colors = kwargs.get('ignore_invalid_colors', False)
+        self.logger = kwargs.get('logger', getLogger(__package__))
+        self.logger.name = self.__class__.__name__
 
     @property
     @abstractmethod

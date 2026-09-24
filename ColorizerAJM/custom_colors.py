@@ -100,7 +100,6 @@ class CustomColorColorizer(_BaseColorizer):
         if self.custom_color_file_path.is_file() and self.custom_color_file_path.suffix == '.json':
             with open(self.custom_color_file_path, 'r') as f:
                 self.custom_colors = load(f)
-                print(f"custom colors loaded from {f.name}")
-                # TODO: log here
+                self.logger.info(f"custom colors loaded from {f.name}")
         else:
             raise AttributeError(f"custom color file path is not a valid file or does not have a .json extension")
