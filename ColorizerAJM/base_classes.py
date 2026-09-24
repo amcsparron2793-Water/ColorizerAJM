@@ -61,6 +61,33 @@ class _ColorizerBasicAttrs:
     ALL_VALID_CODES_RANGE: range = range(0, 256)
 
 
+class _ColorConverterBasicAttrs(_ColorizerBasicAttrs):
+    RGB_LEVELS = [0, 95, 135, 175, 215, 255]
+    GRAYSCALE_BRIGHTNESS_START = 8
+    BRIGHTNESS_MULTIPLIER = 10
+    BASIC_ANSI_RANGE = range(0, 16)
+    RGB_RANGE = range(0, 232)
+    GRAYSCALE_RANGE = range(232, 256)
+    ANSI_16_TO_HEX = {
+        30: "#000000",
+        31: "#800000",
+        32: "#008000",
+        33: "#808000",
+        34: "#000080",
+        35: "#800080",
+        36: "#008080",
+        37: "#c0c0c0",
+        90: "#808080",
+        91: "#ff0000",
+        92: "#00ff00",
+        93: "#ffff00",
+        94: "#0000ff",
+        95: "#ff00ff",
+        96: "#00ffff",
+        97: "#ffffff",
+    }
+
+
 class _BaseColorizer(_ColorizerBasicAttrs, metaclass=ABCMeta):
     """
     _BaseColorizer class is a base class for handling colorization logic, extending _ColorizerBasicAttrs. It includes methods for parsing, validating, and managing color codes and custom colors.

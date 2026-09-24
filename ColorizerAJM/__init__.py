@@ -2,6 +2,6 @@ from ColorizerAJM import errs
 from ColorizerAJM.base_classes import _BaseColorizer
 from ColorizerAJM.custom_colors import CustomColorColorizer
 from ColorizerAJM.colorizer import Colorizer
-from ColorizerAJM.color_converter import ColorConverter
+from ColorizerAJM.color_converter import ColorConverter, TqdmMixin
 
-__all__ = ['_BaseColorizer', 'Colorizer', 'ColorConverter', 'errs', 'CustomColorColorizer']
+__all__ = ['Colorizer', 'ColorConverter', 'TqdmMixin', 'errs', 'CustomColorColorizer']

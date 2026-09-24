@@ -1,35 +1,60 @@
 import re
-from typing import Union
+from abc import abstractmethod, ABCMeta
+from typing import Union, Optional
 
 from ColorizerAJM.errs import InvalidColorInputError
+from ColorizerAJM.base_classes import _ColorConverterBasicAttrs
 
 
-class ColorConverter:
-    RGB_LEVELS = [0, 95, 135, 175, 215, 255]
-    GRAYSCALE_BRIGHTNESS_START = 8
-    BRIGHTNESS_MULTIPLIER = 10
-    BASIC_ANSI_RANGE = range(0, 16)
-    RGB_RANGE = range(0, 232)
-    GRAYSCALE_RANGE = range(232, 256)
-    ANSI_16_TO_HEX = {
-        30: "#000000",
-        31: "#800000",
-        32: "#008000",
-        33: "#808000",
-        34: "#000080",
-        35: "#800080",
-        36: "#008080",
-        37: "#c0c0c0",
-        90: "#808080",
-        91: "#ff0000",
-        92: "#00ff00",
-        93: "#ffff00",
-        94: "#0000ff",
-        95: "#ff00ff",
-        96: "#00ffff",
-        97: "#ffffff",
-    }
+class TqdmMixin(metaclass=ABCMeta):
+    ANSI_OCT_ESCAPE_PREFIX = None
+    ANSI_HEX_ESCAPE_PREFIX = None
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if cls.ANSI_OCT_ESCAPE_PREFIX is None or cls.ANSI_HEX_ESCAPE_PREFIX is None:
+            raise TypeError("ANSI_OCT_ESCAPE_PREFIX and ANSI_HEX_ESCAPE_PREFIX must be set in the subclass")
+
+    @classmethod
+    @abstractmethod
+    def ansi_escape_to_hex(cls, ansi_escape: str) -> str:
+        ...
+
+    @staticmethod
+    def bar_colors() -> dict:
+        try:
+            from tqdm.std import Bar
+            bar_colors = Bar.COLOURS
+        except ImportError:
+            Bar = None
+            bar_colors = dict()
+        return bar_colors
+
+    @classmethod
+    def to_tqdm_colour(cls, color: Optional[str], allow_none: bool = False) -> Optional[str]:
+        """
+        Normalize a color value into something suitable for tqdm's colour argument.
+
+        If given an ANSI escape sequence, it returns a hex color.
+        If given an existing hex color or normal color name, it returns it unchanged.
+        """
+        if color is None:
+            if allow_none:
+                return None
+        # if not allow_none, and it is none, then this will catch it
+        if not isinstance(color, str):
+            raise TypeError(f"color must be a string, not {type(color)}")
+
+        if cls.ANSI_OCT_ESCAPE_PREFIX in color or cls.ANSI_HEX_ESCAPE_PREFIX in color:
+            return cls.ansi_escape_to_hex(color)
+
+        elif color.upper() in cls.bar_colors:
+            return color.upper()
+        else:
+            raise InvalidColorInputError(f"Unsupported color: {color!r}")
+
+
+class ColorConverter(_ColorConverterBasicAttrs):
     @staticmethod
     def rgb_to_hex(red: int, green: int, blue: int) -> str:
         """
@@ -163,32 +188,3 @@ class ColorConverter:
                 return cls.ANSI_16_TO_HEX[number]
 
         raise ValueError(f"Unsupported ANSI color escape sequence: {ansi_escape!r}")
-
-    @classmethod
-    def to_tqdm_colour(cls, color: str) -> str:
-        """
-        Normalize a color value into something suitable for tqdm's colour argument.
-
-        If given an ANSI escape sequence, it returns a hex color.
-        If given an existing hex color or normal color name, it returns it unchanged.
-        """
-        bar_colors = []
-        try:
-            from tqdm.std import Bar
-            bar_colors = Bar.COLOURS
-        except ImportError:
-            pass
-
-        if not isinstance(color, str):
-            raise TypeError(f"color must be a string, not {type(color)}")
-
-        if "\033[" in color or "\x1b[" in color:
-            return cls.ansi_escape_to_hex(color)
-        elif not bar_colors:
-            # TODO: add warning then raise below?
-            ...
-
-        elif color.upper() in bar_colors:
-            return color.upper()
-        else:
-            raise InvalidColorInputError(f"Unsupported color: {color!r}")
