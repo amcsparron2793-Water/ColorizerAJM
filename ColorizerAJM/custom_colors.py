@@ -34,7 +34,7 @@ class CustomColorColorizer(_BaseColorizer):
             self.write_custom_colors()
 
     @property
-    def custom_colors(self):
+    def custom_colors(self) -> dict:
         """
         Retrieve and format custom colors based on predefined rules.
         If custom colors have not been populated yet,
