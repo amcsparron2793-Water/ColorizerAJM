@@ -48,7 +48,7 @@ class TqdmMixin(metaclass=ABCMeta):
         if cls.ANSI_OCT_ESCAPE_PREFIX in color or cls.ANSI_HEX_ESCAPE_PREFIX in color:
             return cls.ansi_escape_to_hex(color)
 
-        elif color.upper() in cls.bar_colors:
+        elif color.upper() in cls.bar_colors():
             return color.upper()
         else:
             raise InvalidColorInputError(f"Unsupported color: {color!r}")
